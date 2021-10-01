@@ -2,7 +2,7 @@ import glob
 
 import cv2
 import os
-from utils.detect_lm5 import generate5keypoints
+from util.detect_lm5 import generate5keypoints
 
 image_path = r'C:\Users\sbasak\Downloads\CASIA-WebFace\Images'
 landmark_path_root = r'C:\Users\sbasak\Downloads\CASIA-WebFace\Detections'
