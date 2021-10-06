@@ -11,7 +11,7 @@ import glob
 
 import cv2
 import os
-from util.detect_lm5 import generate5keypoints
+# from util.detect_lm5 import generate5keypoints
 
 import warnings
 
@@ -27,6 +27,9 @@ parser.add_argument('--img_folder', nargs="+",  # required=True,
                     default=['CASIA-WebFace'], help='folders of training images')  # , 'lfw'
 parser.add_argument('--mode', type=str, default='train', help='train or val')
 opt = parser.parse_args()
+
+def checkFileCounts(dataPath):
+    imagePath = os.path.join(dataPath,'')
 
 
 def generateImageList(dataPath):

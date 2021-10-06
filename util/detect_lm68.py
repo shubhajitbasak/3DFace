@@ -56,12 +56,11 @@ def load_lm_graph(graph_filename):
 def detect_68p(img_path, sess, input_op, output_op):
     print('detecting landmarks......')
 
-    names=[]
+    names = []
     for root, dirs, files in os.walk(img_path):
         if len(files) > 0 and not os.path.exists(root.replace('images', 'landmarks')):
             # os.makedirs(root.replace('images', 'detections'), exist_ok=True)
             names += glob.glob(root + '/' + '*.jpg')
-
 
     # with open(os.path.join(img_path, 'images.txt'), 'r') as f1:
     #     names = f1.readlines()
@@ -78,6 +77,9 @@ def detect_68p(img_path, sess, input_op, output_op):
         vis_path = os.path.join(img_path, 'vis', id)
         remove_path = os.path.join(img_path, 'remove', id)
         save_path = os.path.join(img_path, 'landmarks', id)
+
+        print(save_path)
+
         if not os.path.isdir(vis_path):
             os.makedirs(vis_path)
 

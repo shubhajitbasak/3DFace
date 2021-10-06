@@ -142,6 +142,7 @@ def get_skin_mask(img_path):
         imgName = os.path.basename(name)
 
         save_path = os.path.join(img_path, 'mask', id)
+        print(save_path)
         if not os.path.isdir(save_path):
             os.makedirs(save_path)
 
