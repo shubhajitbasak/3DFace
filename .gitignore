@@ -1,5 +1,9 @@
 # Default ignored files
 .idea
-data/*
+datasets/*
 checkpoints/*
 datalist/*
+BFM/01_MorphableModel.mat
+BFM/Exp_Pca.bin
+BFM/BFM_model_front.mat
+models/arcface_torch
