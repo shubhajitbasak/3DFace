@@ -15,21 +15,22 @@ import os
 
 import warnings
 
-datapath = 'data\CASIA-WebFace'
+# datapath = 'data\CASIA-WebFace'
 # landmark_path_root = 'data\CASIA-WebFace'
 
 warnings.filterwarnings("ignore")
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--data_root', type=str, default='data',
+parser.add_argument('--data_root', type=str, default='/mnt/sata/data/VGG-Face2/data',
                     help='root directory for training data')
 parser.add_argument('--img_folder', nargs="+",  # required=True,
-                    default=['CASIA-WebFace'], help='folders of training images')  # , 'lfw'
+                    default=['vggface2_train_mod'], help='folders of training images')  # , 'lfw'
 parser.add_argument('--mode', type=str, default='train', help='train or val')
 opt = parser.parse_args()
 
+
 def checkFileCounts(dataPath):
-    imagePath = os.path.join(dataPath,'')
+    imagePath = os.path.join(dataPath, '')
 
 
 def generateImageList(dataPath):
