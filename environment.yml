@@ -148,7 +148,6 @@ dependencies:
     - kornia==0.5.5
     - ninja==1.10.2.2
     - numpy==1.19.0
-    - nvdiffrast==0.2.6
     - opencv-python==3.4.9.33
     - trimesh==3.9.20
 prefix: /home/shubhajit/anaconda3/envs/3dface
