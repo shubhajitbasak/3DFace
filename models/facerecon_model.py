@@ -137,8 +137,8 @@ class FaceReconModel(BaseModel):
     def forward(self):
         output_coeff = self.net_recon(self.input_img)
         self.facemodel.to(self.device)
-        self.pred_vertex, self.pred_tex, self.pred_color, self.pred_lm = \
-            self.facemodel.compute_for_render(output_coeff)
+        self.pred_vertex, self.pred_tex, self.pred_color, self.pred_lm, self.pred_shape = \
+            self.facemodel.compute_for_render(output_coeff)  # sbasa01
         self.pred_mask, _, self.pred_face = self.renderer(
             self.pred_vertex, self.facemodel.face_buf, feat=self.pred_color)
 
@@ -211,12 +211,14 @@ class FaceReconModel(BaseModel):
         recon_shape = self.pred_vertex  # get reconstructed shape
         recon_shape[..., -1] = 10 - recon_shape[..., -1]  # from camera space to world space
         recon_shape = recon_shape.cpu().numpy()[0]
-        recon_color = self.pred_color
-        recon_color = recon_color.cpu().numpy()[0]
-        tri = self.facemodel.face_buf.cpu().numpy()
-        mesh = trimesh.Trimesh(vertices=recon_shape, faces=tri,
-                               vertex_colors=np.clip(255. * recon_color, 0, 255).astype(np.uint8))
-        mesh.export(name)
+        # recon_color = self.pred_color
+        # recon_color = recon_color.cpu().numpy()[0]
+        tri = self.facemodel.face_buf.cpu().numpy() + 1
+        util.write_obj(name, recon_shape, tri)
+        # mesh = trimesh.Trimesh(vertices=recon_shape, faces=tri,
+        #                        # vertex_colors=np.clip(255. * recon_color, 0, 255).astype(np.uint8)
+        #                        )
+        # mesh.export(name)
 
     def save_coeff(self, name):
 
@@ -226,3 +228,10 @@ class FaceReconModel(BaseModel):
                            axis=2)  # transfer to image coordinate
         pred_coeffs['lm68'] = pred_lm
         savemat(name, pred_coeffs)
+
+    def get_shape(self):  # sbasak01
+
+        recon_shape = self.pred_shape  # get reconstructed shape
+        recon_shape[..., -1] = 10 - recon_shape[..., -1]  # from camera space to world space
+        recon_shape = recon_shape.cpu().numpy()[0]
+        return recon_shape

@@ -10,6 +10,7 @@ from torch.optim import lr_scheduler
 import torch
 from torch import Tensor
 import torch.nn as nn
+import timm
 
 try:
     from torch.hub import load_state_dict_from_url
@@ -64,7 +65,8 @@ def get_scheduler(optimizer, opt):
 
 
 def define_net_recon(net_recon, use_last_fc=False, init_path=None):
-    return ReconNetWrapper(net_recon, use_last_fc=use_last_fc, init_path=init_path)
+    # return ReconResNetWrapper(net_recon, use_last_fc=use_last_fc, init_path=init_path)
+    return ReconSwinWrapper()
 
 
 def define_net_recog(net_recog, pretrained_path=None):
@@ -73,11 +75,12 @@ def define_net_recog(net_recog, pretrained_path=None):
     return net
 
 
-class ReconNetWrapper(nn.Module):
+# Recon Net Wrapper with Resnet
+class ReconResNetWrapper(nn.Module):
     fc_dim = 257
 
     def __init__(self, net_recon, use_last_fc=False, init_path=None):
-        super(ReconNetWrapper, self).__init__()
+        super(ReconResNetWrapper, self).__init__()
         self.use_last_fc = use_last_fc
         if net_recon not in func_dict:
             return NotImplementedError('network [%s] is not implemented', net_recon)
@@ -109,6 +112,44 @@ class ReconNetWrapper(nn.Module):
             for layer in self.final_layers:
                 output.append(layer(x))
             x = torch.flatten(torch.cat(output, dim=1), 1)
+        return x
+
+
+# Recon Net Wrapper with Swin Transformer
+class ReconSwinWrapper(nn.Module):
+
+    def __init__(self):
+        # swin_tiny_patch4_window7_224 last_dim = 768
+        # swin_base_patch4_window7_224 last_dim = 1024
+        last_dim = 1024
+        super(ReconSwinWrapper, self).__init__()
+        model_ft = timm.create_model('swin_base_patch4_window7_224', pretrained=True)
+        # avg pooling to global pooling
+        # model_ft.avgpool = nn.AdaptiveAvgPool2d((1,1))
+        model_ft.head = nn.Sequential()  # save memory
+        self.model = model_ft
+        # self.circle = circle
+        # self.classifier = ClassBlock(1024, class_num, droprate, return_f=circle)
+        self.final_layers = nn.ModuleList([
+            conv1x1(last_dim, 80, bias=True),  # id layer
+            conv1x1(last_dim, 64, bias=True),  # exp layer
+            conv1x1(last_dim, 80, bias=True),  # tex layer
+            conv1x1(last_dim, 3, bias=True),  # angle layer
+            conv1x1(last_dim, 27, bias=True),  # gamma layer
+            conv1x1(last_dim, 2, bias=True),  # tx, ty
+            conv1x1(last_dim, 1, bias=True)  # tz
+        ])
+        for m in self.final_layers:
+            nn.init.constant_(m.weight, 0.)
+            nn.init.constant_(m.bias, 0.)
+
+    def forward(self, x):
+        x = self.model.forward_features(x)
+        x = x[:, :, None, None]
+        output = []
+        for layer in self.final_layers:
+            output.append(layer(x))
+        x = torch.flatten(torch.cat(output, dim=1), 1)
         return x
 
 
@@ -524,3 +565,44 @@ func_dict = {
     'resnet18': (resnet18, 512),
     'resnet50': (resnet50, 2048)
 }
+
+# # patch models (my experiments)
+# 'swin_base_patch4_window12_384': _cfg(
+#     url='https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_base_patch4_window12_384_22kto1k.pth',
+#     input_size=(3, 384, 384), crop_pct=1.0),
+#
+# 'swin_base_patch4_window7_224': _cfg(
+#     url='https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_base_patch4_window7_224_22kto1k.pth',
+# ),
+#
+# 'swin_large_patch4_window12_384': _cfg(
+#     url='https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_large_patch4_window12_384_22kto1k.pth',
+#     input_size=(3, 384, 384), crop_pct=1.0),
+#
+# 'swin_large_patch4_window7_224': _cfg(
+#     url='https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_large_patch4_window7_224_22kto1k.pth',
+# ),
+#
+# 'swin_small_patch4_window7_224': _cfg(
+#     url='https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_small_patch4_window7_224.pth',
+# ),
+#
+# 'swin_tiny_patch4_window7_224': _cfg(
+#     url='https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_tiny_patch4_window7_224.pth',
+# ),
+#
+# 'swin_base_patch4_window12_384_in22k': _cfg(
+#     url='https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_base_patch4_window12_384_22k.pth',
+#     input_size=(3, 384, 384), crop_pct=1.0, num_classes=21841),
+#
+# 'swin_base_patch4_window7_224_in22k': _cfg(
+#     url='https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_base_patch4_window7_224_22k.pth',
+#     num_classes=21841),
+#
+# 'swin_large_patch4_window12_384_in22k': _cfg(
+#     url='https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_large_patch4_window12_384_22k.pth',
+#     input_size=(3, 384, 384), crop_pct=1.0, num_classes=21841),
+#
+# 'swin_large_patch4_window7_224_in22k': _cfg(
+#     url='https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_large_patch4_window7_224_22k.pth',
+#     num_classes=21841)

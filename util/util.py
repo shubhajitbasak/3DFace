@@ -28,6 +28,7 @@ def copyconf(default_opt, **kwargs):
         setattr(conf, key, kwargs[key])
     return conf
 
+
 def genvalconf(train_opt, **kwargs):
     conf = Namespace(**vars(train_opt))
     attr_dict = train_opt.__dict__
@@ -39,7 +40,8 @@ def genvalconf(train_opt, **kwargs):
         setattr(conf, key, kwargs[key])
 
     return conf
-        
+
+
 def find_class_in_module(target_cls_name, module):
     target_cls_name = target_cls_name.replace('_', '').lower()
     clslib = importlib.import_module(module)
@@ -48,7 +50,8 @@ def find_class_in_module(target_cls_name, module):
         if name.lower() == target_cls_name:
             cls = clsobj
 
-    assert cls is not None, "In %s, there should be a class whose name matches %s in lowercase without underscore(_)" % (module, target_cls_name)
+    assert cls is not None, "In %s, there should be a class whose name matches %s in lowercase without underscore(_)" % (
+    module, target_cls_name)
 
     return cls
 
@@ -177,6 +180,7 @@ def correct_resize(t, size, mode=Image.BICUBIC):
         resized.append(resized_t)
     return torch.stack(resized, dim=0).to(device)
 
+
 def draw_landmarks(img, landmark, color='r', step=2):
     """
     Return:
@@ -188,7 +192,7 @@ def draw_landmarks(img, landmark, color='r', step=2):
         landmark         -- numpy.array, (B, 68, 2), y direction is opposite to v direction
         color            -- str, 'r' or 'b' (red or blue)
     """
-    if color =='r':
+    if color == 'r':
         c = np.array([255., 0, 0])
     else:
         c = np.array([0, 0, 255.])
@@ -206,3 +210,22 @@ def draw_landmarks(img, landmark, color='r', step=2):
                 for m in range(landmark.shape[0]):
                     img[m, v[m], u[m]] = c
     return img
+
+
+def write_obj(file, shape, triangles):
+    with open(file, 'w') as f:
+
+        for i in range(0, len(shape)):
+            f.write('v {} {} {}\n'.format(
+                round(shape[i][0], 5),
+                shape[i][1],
+                shape[i][2],
+            ))
+
+        for i in range(0, len(triangles)):
+            f.write('f {} {} {}\n'.format(
+                int(triangles[i][0]),
+                int(triangles[i][1]),
+                int(triangles[i][2])
+            ))
+
