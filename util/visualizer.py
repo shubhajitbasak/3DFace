@@ -170,7 +170,6 @@ class MyVisualizer:
                 now = time.strftime("%c")
                 log_file.write('================ Training Loss (%s) ================\n' % now)
 
-
     def display_current_results(self, visuals, total_iters, epoch, dataset='train', save_results=False, count=0, name=None,
             add_image=True):
         """Display current results on tensorboad; save current results to an HTML file.

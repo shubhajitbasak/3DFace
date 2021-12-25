@@ -235,3 +235,14 @@ class FaceReconModel(BaseModel):
         recon_shape[..., -1] = 10 - recon_shape[..., -1]  # from camera space to world space
         recon_shape = recon_shape.cpu().numpy()[0]
         return recon_shape
+
+    def get_lm(self):
+        pred_lm = self.pred_lm.cpu().numpy()
+        pred_lm = np.stack([pred_lm[:, :, 0], self.input_img.shape[2] - 1 - pred_lm[:, :, 1]],
+                           axis=2)
+        return pred_lm
+
+    def save_visuals(self, name):
+        img = util.tensor2im(self.output_vis[0])
+        util.save_image(img, name)
+

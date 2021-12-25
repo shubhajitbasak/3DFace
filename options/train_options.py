@@ -20,7 +20,7 @@ class TrainOptions(BaseOptions):
         parser.add_argument('--data_root', type=str, default='./', help='dataset root')
         parser.add_argument('--flist', type=str, default='datalist/train/masks.txt', help='list of mask names of '
                                                                                           'training set')
-        parser.add_argument('--batch_size', type=int, default=108)
+        parser.add_argument('--batch_size', type=int, default=32)
         parser.add_argument('--dataset_mode', type=str, default='flist', help='chooses how datasets are loaded. [None '
                                                                               '| flist]')
         parser.add_argument('--serial_batches', action='store_true', help='if true, takes images in order to make '
@@ -43,7 +43,7 @@ class TrainOptions(BaseOptions):
         # for val
         parser.add_argument('--flist_val', type=str, default='datalist/val/masks.txt', help='list of mask names of '
                                                                                             'val set')
-        parser.add_argument('--batch_size_val', type=int, default=108)
+        parser.add_argument('--batch_size_val', type=int, default=16)
 
         # visualization parameters
         parser.add_argument('--display_freq', type=int, default=1000, help='frequency of showing training results on '

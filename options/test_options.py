@@ -18,7 +18,7 @@ class TestOptions(BaseOptions):
         parser.add_argument('--dataset_mode', type=str, default=None, help='chooses how datasets are loaded. [None | '
                                                                            'flist]')
         parser.add_argument('--img_folder', type=str,
-                            default='/mnt/sata/data/Florence/FlorenceFace/RawFrames',
+                            default='/mnt/sata/data/NowDataset/NoW_Dataset/final_release_version/iphone_pictures',
                             help='folder for test images.')
         parser.add_argument('--test_data', type=str, default='MICC',
                             help='test dataset.')
