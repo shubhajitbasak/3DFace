@@ -62,14 +62,14 @@ def main(rank, opt, root='examples', evalData=None):
             'lms': lm_tensor
         }
         pred_obj_path = im_path[i].replace('final_release_version/iphone_pictures',
-                                           'ModelOutput/SwinBase').replace('jpg', 'obj')
+                                           'ModelOutput/SwinBaseNeutral').replace('jpg', 'obj')
         pred_viz_path = pred_obj_path.replace('obj', 'png')
         if not os.path.exists(os.path.dirname(pred_obj_path)):
             os.makedirs(os.path.dirname(pred_obj_path), exist_ok=True)
 
         model.set_input(data)  # unpack data from data loader
         model.test()  # run inference
-        model.save_mesh(pred_obj_path)
+        model.save_mesh_neutral(pred_obj_path)
         model.save_visuals(pred_viz_path)
         # shp = model.get_shape()
         # lmp = model.get_lm()

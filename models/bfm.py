@@ -97,6 +97,20 @@ class ParametricFaceModel:
         face_shape = id_part + exp_part + self.mean_shape.reshape([1, -1])
         return face_shape.reshape([batch_size, -1, 3])
 
+    def compute_shape_neutral(self, id_coeff):
+        """
+        Return:
+            face_shape       -- torch.tensor, size (B, N, 3)
+
+        Parameters:
+            id_coeff         -- torch.tensor, size (B, 80), identity coeffs
+            exp_coeff        -- torch.tensor, size (B, 64), expression coeffs
+        """
+        batch_size = id_coeff.shape[0]
+        id_part = torch.einsum('ij,aj->ai', self.id_base, id_coeff)
+        face_shape = id_part + self.mean_shape.reshape([1, -1])
+        return face_shape.reshape([batch_size, -1, 3])
+
     def compute_texture(self, tex_coeff, normalize=True):
         """
         Return:
@@ -275,11 +289,13 @@ class ParametricFaceModel:
         """
         coef_dict = self.split_coeff(coeffs)
         face_shape = self.compute_shape(coef_dict['id'], coef_dict['exp'])
+        face_shape_neutral = self.compute_shape_neutral(coef_dict['id'])  # sbasak01
         rotation = self.compute_rotation(coef_dict['angle'])
 
         face_shape_transformed = self.transform(face_shape, rotation, coef_dict['trans'])
         face_vertex = self.to_camera(face_shape_transformed)
-        face_shape_neutral = self.to_camera(face_shape)  # sbasak01
+        face_shape_front = self.to_camera(face_shape)  # sbasak01
+        face_shape_neutral = self.to_camera(face_shape_neutral)  # sbasak01
 
         face_proj = self.to_image(face_vertex)
         landmark = self.get_landmarks(face_proj)
@@ -289,4 +305,4 @@ class ParametricFaceModel:
         face_norm_roted = face_norm @ rotation
         face_color = self.compute_color(face_texture, face_norm_roted, coef_dict['gamma'])
 
-        return face_vertex, face_texture, face_color, landmark, face_shape_neutral  # sbasak01
+        return face_vertex, face_texture, face_color, landmark, face_shape_front, face_shape_neutral  # sbasak01

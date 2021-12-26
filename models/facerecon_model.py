@@ -137,8 +137,8 @@ class FaceReconModel(BaseModel):
     def forward(self):
         output_coeff = self.net_recon(self.input_img)
         self.facemodel.to(self.device)
-        self.pred_vertex, self.pred_tex, self.pred_color, self.pred_lm, self.pred_shape = \
-            self.facemodel.compute_for_render(output_coeff)  # sbasa01
+        self.pred_vertex, self.pred_tex, self.pred_color, self.pred_lm, self.pred_shape, self.pred_shape_neutral = \
+            self.facemodel.compute_for_render(output_coeff)  # sbasa01 pred_shape pred_shape_neutral
         self.pred_mask, _, self.pred_face = self.renderer(
             self.pred_vertex, self.facemodel.face_buf, feat=self.pred_color)
 
@@ -235,6 +235,16 @@ class FaceReconModel(BaseModel):
         recon_shape[..., -1] = 10 - recon_shape[..., -1]  # from camera space to world space
         recon_shape = recon_shape.cpu().numpy()[0]
         return recon_shape
+
+    def save_mesh_neutral(self, name):
+
+        recon_shape = self.pred_shape_neutral  # get reconstructed shape
+        recon_shape[..., -1] = 10 - recon_shape[..., -1]  # from camera space to world space
+        recon_shape = recon_shape.cpu().numpy()[0]
+        # recon_color = self.pred_color
+        # recon_color = recon_color.cpu().numpy()[0]
+        tri = self.facemodel.face_buf.cpu().numpy() + 1
+        util.write_obj(name, recon_shape, tri)
 
     def get_lm(self):
         pred_lm = self.pred_lm.cpu().numpy()
