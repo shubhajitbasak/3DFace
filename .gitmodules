@@ -1,3 +1,6 @@
 [submodule "nvdiffrast"]
 	path = nvdiffrast
 	url = https://github.com/NVlabs/nvdiffrast.git
+[submodule "face3d"]
+	path = face3d
+	url = https://github.com/zqbai-jeremy/face3d
