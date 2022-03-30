@@ -1,5 +1,6 @@
 """This script defines the face reconstruction model for Deep3DFaceRecon_pytorch
 """
+import os.path
 
 import numpy as np
 import torch
@@ -137,10 +138,15 @@ class FaceReconModel(BaseModel):
     def forward(self):
         output_coeff = self.net_recon(self.input_img)
         self.facemodel.to(self.device)
-        self.pred_vertex, self.pred_tex, self.pred_color, self.pred_lm, self.pred_shape, self.pred_shape_neutral = \
+        self.pred_vertex, self.pred_tex, self.pred_color, self.pred_lm, \
+        self.pred_shape, self.pred_shape_neutral, self.pred_color_gray = \
             self.facemodel.compute_for_render(output_coeff)  # sbasa01 pred_shape pred_shape_neutral
         self.pred_mask, _, self.pred_face = self.renderer(
             self.pred_vertex, self.facemodel.face_buf, feat=self.pred_color)
+
+        if (self.isTrain==False):
+            _, _, self.pred_face_nocolor = self.renderer(
+            self.pred_vertex, self.facemodel.face_buf, feat=self.pred_color_gray)
 
         self.pred_coeffs_dict = self.facemodel.split_coeff(output_coeff)
 
@@ -252,7 +258,22 @@ class FaceReconModel(BaseModel):
                            axis=2)
         return pred_lm
 
-    def save_visuals(self, name):
-        img = util.tensor2im(self.output_vis[0])
-        util.save_image(img, name)
+    def save_visuals(self, path, imgName):
+
+        with torch.no_grad():
+            # input_img_numpy = 255. * self.input_img.detach().cpu().permute(0, 2, 3, 1).numpy()
+            img_superimp = self.pred_face_nocolor * self.pred_mask + (1 - self.pred_mask) * self.input_img
+            img_superimp = 255. * img_superimp.detach().cpu().permute(0, 2, 3, 1).numpy()
+            img_superimp = img_superimp.astype(np.uint8)[0]
+            # img = util.tensor2im(output_vis)
+            util.save_image(img_superimp, os.path.join(path, imgName + '_new.png'))
+
+            img_mesh = 255. * self.pred_face_nocolor.detach().cpu().permute(0, 2, 3, 1).numpy()
+            img_mesh = img_mesh.astype(int)[0]
+            img_mesh = img_mesh.astype(np.uint8)
+            img_mesh[img_mesh == 0] = 255
+            util.save_image(img_mesh, os.path.join(path, imgName + '_new1.png'))
+
+        # img = util.tensor2im(self.output_vis[0])
+
 

@@ -71,6 +71,9 @@ def main(rank, opt, name='datasets/examples'):
         visualizer.display_current_results(visuals, 0, opt.epoch, dataset=name.split(os.path.sep)[-1],
                                            save_results=True, count=i, name=img_name, add_image=False)
 
+        model.save_visuals(os.path.join(visualizer.img_dir, name.split(os.path.sep)[-1],
+                                        'epoch_%s_%06d' % (opt.epoch, 0)), img_name)
+
         model.save_mesh(os.path.join(visualizer.img_dir, name.split(os.path.sep)[-1], 'epoch_%s_%06d' % (opt.epoch, 0),
                                      img_name + '.obj'))  # save reconstruction meshes
         model.save_coeff(os.path.join(visualizer.img_dir, name.split(os.path.sep)[-1], 'epoch_%s_%06d' % (opt.epoch, 0),

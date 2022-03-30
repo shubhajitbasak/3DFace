@@ -305,4 +305,10 @@ class ParametricFaceModel:
         face_norm_roted = face_norm @ rotation
         face_color = self.compute_color(face_texture, face_norm_roted, coef_dict['gamma'])
 
-        return face_vertex, face_texture, face_color, landmark, face_shape_front, face_shape_neutral  # sbasak01
+        clr = np.ones((face_shape.shape[1], 3), dtype=np.float) - 0.5
+        clr = clr.reshape(1, face_shape.shape[1], 3)
+        face_texture_gray = torch.tensor(clr, dtype=torch.float32).cuda()
+
+        face_color_gray = self.compute_color(face_texture_gray, face_norm_roted, coef_dict['gamma'])
+
+        return face_vertex, face_texture, face_color, landmark, face_shape_front, face_shape_neutral, face_color_gray  # sbasak01
