@@ -17,9 +17,24 @@ from scipy.io import loadmat, savemat
 import glob
 
 
-def get_data_path(root='examples'):
-    lm_path = sorted(glob.glob(root + '/**/IMG*.txt', recursive=True))
-    im_path = [i.replace('txt', 'jpg') for i in lm_path]
+def get_data_path(root='examples', eval = None):
+    # validation
+    if eval:
+        valList = '/mnt/sata/data/NowDataset/NoW_Dataset/Validation/imagepathsvalidation.txt'
+        with open(valList,mode='r') as f:
+            t = f.readlines()
+        im_path = [os.path.join(root, i.strip()) for i in t]
+        lm_path = [i.replace('jpg', 'txt') for i in im_path]
+    else:
+        lm_path = sorted(glob.glob(root + '/**/IMG*.txt', recursive=True))
+        im_path = [i.replace('txt', 'jpg') for i in lm_path]
+
+    for im,lm in zip(im_path, lm_path):
+        if os.path.exists(im) and os.path.exists(lm):
+            # print('True')
+            pass
+        else:
+            print(im)
 
     return im_path, lm_path
 
@@ -38,7 +53,7 @@ def read_data(im_path, lm_path, lm3d_std, to_tensor=True):
     return im, lm
 
 
-def main(rank, opt, root='examples', evalData=None):
+def main(rank, opt, root='examples', eval=None):
     device = torch.device(rank)
     torch.cuda.set_device(device)
     model = create_model(opt)
@@ -48,7 +63,7 @@ def main(rank, opt, root='examples', evalData=None):
     model.eval()
     visualizer = MyVisualizer(opt)
 
-    im_path, lm_path = get_data_path(root)
+    im_path, lm_path = get_data_path(root, eval)
     lm3d_std = load_lm3d(opt.bfm_folder)
 
     for i in range(len(im_path)):
@@ -84,4 +99,4 @@ def main(rank, opt, root='examples', evalData=None):
 
 if __name__ == '__main__':
     opt = TestOptions().parse()  # get test options
-    main(0, opt, root=opt.img_folder, evalData=opt.test_data)
+    main(0, opt, root=opt.img_folder, eval=True)
