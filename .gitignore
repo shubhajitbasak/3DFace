@@ -8,3 +8,8 @@ BFM/Exp_Pca.bin
 BFM/BFM_model_front.mat
 models/arcface_torch
 nvdiffrast/*
+util/cython
+data/__pycache__
+models/__pycache__
+options/__pycache__
+util/__pycache__
