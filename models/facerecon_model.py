@@ -262,17 +262,17 @@ class FaceReconModel(BaseModel):
 
         with torch.no_grad():
             # input_img_numpy = 255. * self.input_img.detach().cpu().permute(0, 2, 3, 1).numpy()
-            img_superimp = self.pred_face_nocolor * self.pred_mask + (1 - self.pred_mask) * self.input_img
-            img_superimp = 255. * img_superimp.detach().cpu().permute(0, 2, 3, 1).numpy()
+            # img_superimp = self.pred_face * self.pred_mask + (1 - self.pred_mask) * self.input_img
+            img_superimp = 255. * self.pred_face.detach().cpu().permute(0, 2, 3, 1).numpy()
             img_superimp = img_superimp.astype(np.uint8)[0]
-            # img = util.tensor2im(output_vis)
-            util.save_image(img_superimp, os.path.join(path, imgName + '_new.png'))
+            img_superimp[img_superimp == 0] = 255
+            util.save_image(img_superimp, os.path.join(path, imgName + '_1.png'))
 
             img_mesh = 255. * self.pred_face_nocolor.detach().cpu().permute(0, 2, 3, 1).numpy()
             img_mesh = img_mesh.astype(int)[0]
             img_mesh = img_mesh.astype(np.uint8)
             img_mesh[img_mesh == 0] = 255
-            util.save_image(img_mesh, os.path.join(path, imgName + '_new1.png'))
+            util.save_image(img_mesh, os.path.join(path, imgName + '_2.png'))
 
         # img = util.tensor2im(self.output_vis[0])
 
