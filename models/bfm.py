@@ -57,6 +57,15 @@ class ParametricFaceModel:
         # vertex indices for 68 landmarks. starts from 0. [68,1]
         self.keypoints = np.squeeze(model['keypoints']).astype(np.int64) - 1
 
+        # keypoints -
+        # 16644, 16888, 16467, 16264, 32244, 32939, 33375, 33654, 33838, 34022,
+        # 34312, 34766, 35472, 27816, 27608, 27208, 27440, 28111, 28787, 29177,
+        # 29382, 29549, 30288, 30454, 30662, 31056, 31716, 8161, 8177, 8187,
+        # 8192, 6515, 7243, 8204, 9163, 9883, 2215, 3886, 4920, 5828,
+        # 4801, 3640, 10455, 11353, 12383, 14066, 12653, 11492, 5522, 6025,
+        # 7495, 8215, 8935, 10395, 10795, 9555, 8836, 8236, 7636, 6915,
+        # 5909, 7384, 8223, 9064, 10537, 8829, 8229, 7629
+
         if is_train:
             # vertex indices for small face region to compute photometric error. starts from 0.
             self.front_mask = np.squeeze(model['frontmask2_idx']).astype(np.int64) - 1
@@ -305,13 +314,19 @@ class ParametricFaceModel:
         face_norm_roted = face_norm @ rotation
         face_color = self.compute_color(face_texture, face_norm_roted, coef_dict['gamma'])
 
-        clr = np.ones((face_shape.shape[1], 3), dtype=np.float) - 0.25
+        clr = np.ones((face_shape.shape[1], 3), dtype=np.float) - 0.4
         clr = clr.reshape(1, face_shape.shape[1], 3)
         face_texture_gray = torch.tensor(clr, dtype=torch.float32).cuda()
 
         # gma = np.zeros((1, 27))
         # gma = torch.tensor(gma, dtype=torch.float32).cuda()
 
-        face_color_gray = self.compute_color(face_texture_gray, face_norm_roted, coef_dict['gamma'])
+        # gammanpy = np.load('/mnt/sata/code/myGit/3DFace/checkpoints/swin3dface_base/gamma.npy')
+        # gammanpy = torch.from_numpy(gammanpy).cuda()
 
-        return face_vertex, face_texture, face_color, landmark, face_shape_front, face_shape_neutral, face_color_gray  # sbasak01
+        face_color_gray = np.load('/mnt/sata/code/myGit/3DFace/checkpoints/swin3dface_base/color.npy')
+        face_color_gray = torch.from_numpy(face_color_gray).cuda()
+        # face_color_gray = self.compute_color(face_texture_gray, face_norm_roted, coef_dict['gamma'])
+
+        return face_vertex, face_texture, face_color, landmark, face_shape_front, \
+               face_shape_neutral, face_color_gray # sbasak01

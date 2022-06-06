@@ -15,7 +15,10 @@ from data.flist_dataset import default_flist_reader
 from scipy.io import loadmat, savemat
 
 import matplotlib
+
 matplotlib.use('TkAgg')
+
+
 # import matplotlib.pyplot as plt
 
 
@@ -68,23 +71,24 @@ def main(rank, opt, name='datasets/examples'):
         model.set_input(data)  # unpack data from data loader
         model.test()  # run inference
         visuals = model.get_current_visuals()  # get image results
-        visualizer.display_current_results(visuals, 0, opt.epoch, dataset=name.split(os.path.sep)[-1],
-                                           save_results=True, count=i, name=img_name, add_image=False)
+        # visualizer.display_current_results(visuals, 0, opt.epoch, dataset=name.split(os.path.sep)[-1],
+        #                                    save_results=True, count=i, name=img_name, add_image=False)
 
         model.save_visuals(os.path.join(visualizer.img_dir, name.split(os.path.sep)[-1],
                                         'epoch_%s_%06d' % (opt.epoch, 0)), img_name)
 
-        model.save_mesh(os.path.join(visualizer.img_dir, name.split(os.path.sep)[-1], 'epoch_%s_%06d' % (opt.epoch, 0),
-                                     img_name + '.obj'))  # save reconstruction meshes
-        model.save_coeff(os.path.join(visualizer.img_dir, name.split(os.path.sep)[-1], 'epoch_%s_%06d' % (opt.epoch, 0),
-                                      img_name + '.mat'))  # save predicted coefficients
+        # model.save_mesh(os.path.join(visualizer.img_dir, name.split(os.path.sep)[-1], 'epoch_%s_%06d' % (opt.epoch, 0),
+        #                              img_name + '.obj'))  # save reconstruction meshes
+        # model.save_coeff(os.path.join(visualizer.img_dir, name.split(os.path.sep)[-1], 'epoch_%s_%06d' % (opt.epoch, 0),
+        #                               img_name + '.mat'))  # save predicted coefficients
+        # model.save_orig_cropped(os.path.join(visualizer.img_dir, name.split(os.path.sep)[-1],
+        #                                      'epoch_%s_%06d' % (opt.epoch, 0)), img_name)
 
 
 if __name__ == '__main__':
-
     import warnings
 
     warnings.filterwarnings("ignore")
 
     opt = TestOptions().parse()  # get test options
-    main(0, opt) #, opt.img_folder)
+    main(0, opt)  # , opt.img_folder)

@@ -144,9 +144,9 @@ class FaceReconModel(BaseModel):
         self.pred_mask, _, self.pred_face = self.renderer(
             self.pred_vertex, self.facemodel.face_buf, feat=self.pred_color)
 
-        if (self.isTrain==False):
+        if (self.isTrain == False):
             _, _, self.pred_face_nocolor = self.renderer(
-            self.pred_vertex, self.facemodel.face_buf, feat=self.pred_color_gray)
+                self.pred_vertex, self.facemodel.face_buf, feat=self.pred_color_gray)
 
         self.pred_coeffs_dict = self.facemodel.split_coeff(output_coeff)
 
@@ -195,6 +195,11 @@ class FaceReconModel(BaseModel):
             input_img_numpy = 255. * self.input_img.detach().cpu().permute(0, 2, 3, 1).numpy()
             output_vis = self.pred_face * self.pred_mask + (1 - self.pred_mask) * self.input_img
             output_vis_numpy_raw = 255. * output_vis.detach().cpu().permute(0, 2, 3, 1).numpy()
+
+            # output_vis = self.input_img * self.pred_mask
+            # output_vis_numpy = 255. * output_vis.detach().cpu().permute(0, 2, 3, 1).numpy()
+
+
 
             if self.gt_lm is not None:
                 gt_lm_numpy = self.gt_lm.cpu().numpy()
@@ -263,9 +268,11 @@ class FaceReconModel(BaseModel):
         with torch.no_grad():
             # input_img_numpy = 255. * self.input_img.detach().cpu().permute(0, 2, 3, 1).numpy()
             # img_superimp = self.pred_face * self.pred_mask + (1 - self.pred_mask) * self.input_img
-            img_superimp = 255. * self.pred_face.detach().cpu().permute(0, 2, 3, 1).numpy()
-            img_superimp = img_superimp.astype(np.uint8)[0]
-            img_superimp[img_superimp == 0] = 255
+            output_vis = self.pred_face * self.pred_mask
+            output_vis_numpy_raw = 255. * output_vis.detach().cpu().permute(0, 2, 3, 1).numpy()
+            # img_superimp = 255. * self.pred_face.detach().cpu().permute(0, 2, 3, 1).numpy()
+            img_superimp = output_vis_numpy_raw.astype(np.uint8)[0]
+            # img_superimp[img_superimp == 0] = 255
             util.save_image(img_superimp, os.path.join(path, imgName + '_1.png'))
 
             img_mesh = 255. * self.pred_face_nocolor.detach().cpu().permute(0, 2, 3, 1).numpy()
@@ -274,6 +281,22 @@ class FaceReconModel(BaseModel):
             img_mesh[img_mesh == 0] = 255
             util.save_image(img_mesh, os.path.join(path, imgName + '_2.png'))
 
+            output_vis = self.pred_face * self.pred_mask + (1 - self.pred_mask) * self.input_img
+            output_vis_numpy_raw = 255. * output_vis.detach().cpu().permute(0, 2, 3, 1).numpy()
+            # img_superimp = 255. * self.pred_face.detach().cpu().permute(0, 2, 3, 1).numpy()
+            img_superimp = output_vis_numpy_raw.astype(np.uint8)[0]
+            img_superimp[img_superimp == 0] = 255
+            util.save_image(img_superimp, os.path.join(path, imgName + '_3.png'))
+
         # img = util.tensor2im(self.output_vis[0])
 
+    def save_orig_cropped(self, path, imgName):
+        input_img_numpy = 255. * self.input_img.detach().cpu().permute(0, 2, 3, 1).numpy()
+        orig_img = input_img_numpy[0].astype(np.uint8)
+        util.save_image(orig_img, os.path.join(path, imgName + '_cropped.png'))
+
+        output_vis = self.pred_face_nocolor * self.pred_mask + (1 - self.pred_mask) * self.input_img
+        output_vis_numpy_raw = 255. * output_vis.detach().cpu().permute(0, 2, 3, 1).numpy()
+        img_mesh = output_vis_numpy_raw[0].astype(np.uint8)
+        util.save_image(img_mesh, os.path.join(path, imgName + '_superimp.png'))
 
